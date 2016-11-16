@@ -6,7 +6,7 @@ public class GravityCharacterController : MonoBehaviour
 {
   private static readonly float s_GroundCheckDistance = 0.05f; // distance for checking if the controller is grounded
   private static readonly float s_StickToGroundHelperDistance = 0.6f; // stops the character
-  private static readonly float s_SlowDownRate = 20.0f; // rate at which the controller comes to a stop when there is no input
+  private static readonly float s_SlowDownRate = 40.0f; // rate at which the controller comes to a stop when there is no input
   private static readonly float s_ShellOffset = 0.0f; //reduce the radius by that ratio to avoid getting stuck in wall (a value of 0.1f is nice)
   private static float s_RotationSpeed = 5.0f;
   private CapsuleCollider m_CapsuleCollider;

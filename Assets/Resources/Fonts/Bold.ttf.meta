@@ -1,15 +1,16 @@
 fileFormatVersion: 2
 guid: 44ab38114bb49fd4c8d7804c40685095
-timeCreated: 1457980426
+timeCreated: 1479278781
 licenseType: Free
 TrueTypeFontImporter:
-  serializedVersion: 3
-  fontSize: 5
+  serializedVersion: 4
+  fontSize: 16
   forceTextureCase: -2
-  characterSpacing: 1
-  characterPadding: 0
+  characterSpacing: 0
+  characterPadding: 1
   includeFontData: 1
-  fontNames: []
+  fontNames:
+  - Noto Sans UI
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

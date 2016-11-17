@@ -1,14 +1,17 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(Text))]
 public class LocalizeText : MonoBehaviour
 {
-  [SerializeField]
-  private Text m_Text;
   [SerializeField]
   private string m_Key;
   [SerializeField]
   private bool m_UpperCase;
+  [SerializeField]
+  private string m_Before;
+  [SerializeField]
+  private string m_After;
 
   private void Start()
   {
@@ -20,10 +23,13 @@ public class LocalizeText : MonoBehaviour
   [ContextMenu("Localize")]
   public void Localize()
   {
-    m_Text.text = Localization.GetText(m_Key);
+    var text = GetComponent<Text>();
+    var localized = Localization.GetText(m_Key);
 
     if (m_UpperCase) {
-      m_Text.text = m_Text.text.ToUpperInvariant();
+      text.text = m_Before + localized.ToUpperInvariant() + m_After;
+    } else {
+      text.text = m_Before + localized + m_After;
     }
   }
 }

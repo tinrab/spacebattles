@@ -6,7 +6,6 @@ public class MenuTabsController : MonoBehaviour
 {
   private static readonly Vector2 s_FarLeft = new Vector2(-1000.0f, 0.0f);
   private static readonly Vector2 s_FarRight = new Vector2(1000.0f, 0.0f);
-  private static readonly float s_SwitchDuration = 1.0f;
 
   [SerializeField]
   private Toggle[] m_Tabs;
@@ -14,6 +13,8 @@ public class MenuTabsController : MonoBehaviour
   private RectTransform[] m_TabContents;
   [SerializeField]
   private CanvasGroup[] m_CanvasGroups;
+  [SerializeField]
+  private float m_SwitchDuration;
 
   private int m_CurrentTab;
 
@@ -49,7 +50,6 @@ public class MenuTabsController : MonoBehaviour
 
   private void SwitchTabTo(int tab)
   {
-    // switch from a to b
     var ta = m_TabContents[m_CurrentTab];
     var tb = m_TabContents[tab];
     var ga = m_CanvasGroups[m_CurrentTab];
@@ -70,27 +70,29 @@ public class MenuTabsController : MonoBehaviour
     tb.gameObject.SetActive(true);
     gb.interactable = false;
 
-    TweenFactory.Tween("MoveA", Vector2.zero, targetPositionA, s_SwitchDuration, TweenScaleFunctions.CubicEaseInOut, t =>
+    TweenFactory.Tween("MoveA", Vector2.zero, targetPositionA, m_SwitchDuration, TweenScaleFunctions.CubicEaseInOut, t =>
     {
       ta.anchoredPosition = t.CurrentValue;
     }, t =>
     {
       ta.gameObject.SetActive(false);
     });
-    TweenFactory.Tween("FadeA", 1.0f, 0.0f, s_SwitchDuration, TweenScaleFunctions.CubicEaseInOut, t =>
+    TweenFactory.Tween("FadeA", 1.0f, 0.0f, m_SwitchDuration, TweenScaleFunctions.CubicEaseInOut, t =>
     {
       ga.alpha = t.CurrentValue;
     }, t => {});
 
-    TweenFactory.Tween("MoveB", startPositionB, Vector2.zero, s_SwitchDuration, TweenScaleFunctions.CubicEaseInOut, t => {
+    TweenFactory.Tween("MoveB", startPositionB, Vector2.zero, m_SwitchDuration, TweenScaleFunctions.CubicEaseInOut, t =>
+    {
       tb.anchoredPosition = t.CurrentValue;
     }, t =>
     {
       gb.interactable = true;
     });
-    TweenFactory.Tween("FadeB", 0.0f, 1.0f, s_SwitchDuration, TweenScaleFunctions.CubicEaseInOut, t => {
+    TweenFactory.Tween("FadeB", 0.0f, 1.0f, m_SwitchDuration, TweenScaleFunctions.CubicEaseInOut, t =>
+    {
       gb.alpha = t.CurrentValue;
-    }, t => { });
+    }, t => {});
 
     m_CurrentTab = tab;
   }

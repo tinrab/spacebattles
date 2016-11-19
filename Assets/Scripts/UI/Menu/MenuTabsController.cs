@@ -4,8 +4,8 @@ using UnityEngine.UI;
 
 public class MenuTabsController : MonoBehaviour
 {
-  private static readonly Vector2 s_FarLeft = new Vector2(-1000.0f, 0.0f);
-  private static readonly Vector2 s_FarRight = new Vector2(1000.0f, 0.0f);
+  private static readonly Vector2 s_FarLeft = new Vector2(-1280.0f, 0.0f);
+  private static readonly Vector2 s_FarRight = new Vector2(1280.0f, 0.0f);
 
   [SerializeField]
   private Toggle[] m_Tabs;
@@ -26,30 +26,18 @@ public class MenuTabsController : MonoBehaviour
     }
   }
 
-  public void OnHomeClick()
-  {
-    if (m_CurrentTab == 0) {
-      return;
-    }
-
-    for (var i = 0; i < m_Tabs.Length; i++) {
-      m_Tabs[i].isOn = false;
-    }
-
-    SwitchTabTo(0);
-  }
-
-  public void OnTabClick(int tab)
+  public void SwitchTabTo(int tab)
   {
     if (m_CurrentTab == tab) {
       return;
     }
 
-    SwitchTabTo(tab);
-  }
+    if (tab < 2 || tab > 4) {
+      for (var i = 0; i < m_Tabs.Length; i++) {
+        m_Tabs[i].isOn = false;
+      }
+    }
 
-  private void SwitchTabTo(int tab)
-  {
     var ta = m_TabContents[m_CurrentTab];
     var tb = m_TabContents[tab];
     var ga = m_CanvasGroups[m_CurrentTab];

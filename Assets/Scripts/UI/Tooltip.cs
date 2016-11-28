@@ -5,20 +5,15 @@ using UnityEngine.UI;
 
 public class Tooltip : Singleton<Tooltip>
 {
-  [SerializeField]
-  private RectTransform m_Widget;
-  [SerializeField]
-  private Text m_Text;
-  private CanvasGroup m_WidgetGroup;
-  private bool m_IsWidgetActive;
-  [SerializeField]
-  private float m_FadeDuration;
+  [SerializeField] private float m_BorderPadding;
   private RectTransform m_Canvas;
+  [SerializeField] private float m_FadeDuration;
+  private bool m_IsWidgetActive;
+  [SerializeField] private Text m_Text;
   private Camera m_UICamera;
-  [SerializeField]
-  private float m_VerticalOffset;
-  [SerializeField]
-  private float m_BorderPadding;
+  [SerializeField] private float m_VerticalOffset;
+  [SerializeField] private RectTransform m_Widget;
+  private CanvasGroup m_WidgetGroup;
 
   private void Start()
   {
@@ -62,22 +57,24 @@ public class Tooltip : Singleton<Tooltip>
     m_Widget.gameObject.SetActive(true);
 
     TweenFactory.RemoveTweenKey("HideTooltip", TweenStopBehavior.DoNotModify);
-    TweenFactory.Tween("ShowTooltip", m_WidgetGroup.alpha, 1.0f, m_FadeDuration, TweenScaleFunctions.CubicEaseInOut, t =>
-    {
-      m_WidgetGroup.alpha = t.CurrentValue;
-    }, t => {});
+    TweenFactory.Tween("ShowTooltip", m_WidgetGroup.alpha, 1.0f, m_FadeDuration, TweenScaleFunctions.CubicEaseInOut,
+      t =>
+      {
+        m_WidgetGroup.alpha = t.CurrentValue;
+      }, t => {});
   }
 
   public void OnPointerExit(TooltipContext context, PointerEventData eventData)
   {
     TweenFactory.RemoveTweenKey("ShowTooltip", TweenStopBehavior.DoNotModify);
-    TweenFactory.Tween("HideTooltip", m_WidgetGroup.alpha, 0.0f, m_FadeDuration, TweenScaleFunctions.CubicEaseInOut, t =>
-    {
-      m_WidgetGroup.alpha = t.CurrentValue;
-    }, t =>
-    {
-      m_Widget.gameObject.SetActive(false);
-      m_IsWidgetActive = false;
-    });
+    TweenFactory.Tween("HideTooltip", m_WidgetGroup.alpha, 0.0f, m_FadeDuration, TweenScaleFunctions.CubicEaseInOut,
+      t =>
+      {
+        m_WidgetGroup.alpha = t.CurrentValue;
+      }, t =>
+      {
+        m_Widget.gameObject.SetActive(false);
+        m_IsWidgetActive = false;
+      });
   }
 }

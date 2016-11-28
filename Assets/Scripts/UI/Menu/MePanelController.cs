@@ -3,10 +3,8 @@ using UnityEngine.UI;
 
 public class MePanelController : MonoBehaviour
 {
-  [SerializeField]
-  private Image m_UserAvatar;
-  [SerializeField]
-  private Text m_UserName;
+  [SerializeField] private Image m_UserAvatar;
+  [SerializeField] private Text m_UserName;
 
   private void Start()
   {

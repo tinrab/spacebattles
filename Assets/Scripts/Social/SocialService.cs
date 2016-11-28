@@ -4,14 +4,16 @@ using UnityEngine.Events;
 
 public class SocialService : Singleton<SocialService>
 {
-  private CallResult<NumberOfCurrentPlayers_t> m_NumberOfCurrentPlayers;
-  private UnityAction<ServiceResult<int>> m_NumberOfCurrentPlayersCallback;
+  private static readonly AppId_t s_AppId = (AppId_t) 440;
   private Callback<AvatarImageLoaded_t> m_AvatarImageLoaded;
   private UnityAction<ServiceResult<Sprite>> m_AvatarImageLoadedCallback;
+  private CallResult<NumberOfCurrentPlayers_t> m_NumberOfCurrentPlayers;
+  private UnityAction<ServiceResult<int>> m_NumberOfCurrentPlayersCallback;
 
   public bool initialized
   {
-    get {
+    get
+    {
       return SteamManager.Initialized;
     }
   }
@@ -23,6 +25,8 @@ public class SocialService : Singleton<SocialService>
       m_AvatarImageLoaded = Callback<AvatarImageLoaded_t>.Create(OnAvatarImageLoaded);
     }
   }
+
+  private void OnDisable() {}
 
   public string GetUserName()
   {
@@ -49,30 +53,6 @@ public class SocialService : Singleton<SocialService>
   {
     var handle = SteamUserStats.GetNumberOfCurrentPlayers();
     m_NumberOfCurrentPlayers.Set(handle);
-  }
-
-  private void OnNumberOfCurrentPlayers(NumberOfCurrentPlayers_t callback, bool ioFailure)
-  {
-    if (callback.m_bSuccess != 1 || ioFailure) {
-      m_NumberOfCurrentPlayersCallback(new ServiceResult<int>(false));
-    } else {
-      m_NumberOfCurrentPlayersCallback(new ServiceResult<int>(true, callback.m_cPlayers));
-    }
-  }
-
-  private void OnAvatarImageLoaded(AvatarImageLoaded_t callback)
-  {
-    if (callback.m_iImage == 0) {
-      m_AvatarImageLoadedCallback(new ServiceResult<Sprite>(false));
-    } else {
-      var sprite = LoadSprite(callback.m_iImage);
-
-      if (sprite == null) {
-        m_AvatarImageLoadedCallback(new ServiceResult<Sprite>(false));
-      } else {
-        m_AvatarImageLoadedCallback(new ServiceResult<Sprite>(true, sprite));
-      }
-    }
   }
 
   private Sprite LoadSprite(int imageId)
@@ -103,7 +83,7 @@ public class SocialService : Singleton<SocialService>
       return null;
     }
 
-    var data = new byte[(int)(4 * width * height)];
+    var data = new byte[(int) (4 * width * height)];
     if (!SteamUtils.GetImageRGBA(imageId, data, data.Length)) {
       return null;
     }
@@ -113,6 +93,30 @@ public class SocialService : Singleton<SocialService>
     texture.Apply();
 
     return texture;
+  }
+
+  private void OnNumberOfCurrentPlayers(NumberOfCurrentPlayers_t callback, bool ioFailure)
+  {
+    if (callback.m_bSuccess != 1 || ioFailure) {
+      m_NumberOfCurrentPlayersCallback(new ServiceResult<int>(false));
+    } else {
+      m_NumberOfCurrentPlayersCallback(new ServiceResult<int>(true, callback.m_cPlayers));
+    }
+  }
+
+  private void OnAvatarImageLoaded(AvatarImageLoaded_t callback)
+  {
+    if (callback.m_iImage == 0) {
+      m_AvatarImageLoadedCallback(new ServiceResult<Sprite>(false));
+    } else {
+      var sprite = LoadSprite(callback.m_iImage);
+
+      if (sprite == null) {
+        m_AvatarImageLoadedCallback(new ServiceResult<Sprite>(false));
+      } else {
+        m_AvatarImageLoadedCallback(new ServiceResult<Sprite>(true, sprite));
+      }
+    }
   }
 
   public struct ServiceResult<T>

@@ -3,12 +3,9 @@ using UnityEngine;
 
 public class OptionsPanelController : MonoBehaviour
 {
-  [SerializeField]
-  private CanvasGroup[] m_TabContents;
-  [SerializeField]
-  private float m_SwitchDuration;
-
   private int m_CurrentTab;
+  [SerializeField] private float m_SwitchDuration;
+  [SerializeField] private CanvasGroup[] m_TabContents;
 
   public void SwitchTabTo(int tab)
   {

@@ -3,12 +3,12 @@ using UnityEngine.EventSystems;
 
 public class TooltipContext : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-  [SerializeField]
-  private string m_TextKey;
+  [SerializeField] private string m_TextKey;
 
   public string textKey
   {
-    get {
+    get
+    {
       return m_TextKey;
     }
   }

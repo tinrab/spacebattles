@@ -2,22 +2,19 @@
 
 public class MouseLook : MonoBehaviour
 {
-  [SerializeField]
-  private Transform m_View;
-  [SerializeField]
-  private Transform m_Camera;
-  [SerializeField]
-  private Vector2 m_Sensitivity;
-  private bool m_Smoothing;
-  private float m_SmoothTime;
   private Quaternion m_CameraTargetHorizontalRotation;
   private Quaternion m_CameraTargetVerticalRotation;
   private CursorLockMode m_LockMode;
+  [SerializeField] private Vector2 m_Sensitivity;
+  private bool m_Smoothing;
+  private float m_SmoothTime;
+  [SerializeField] private Transform m_Vertical;
+  [SerializeField] private Transform m_Horizontal;
 
   private void Start()
   {
-    m_CameraTargetHorizontalRotation = m_View.localRotation;
-    m_CameraTargetVerticalRotation = m_Camera.localRotation;
+    m_CameraTargetHorizontalRotation = m_Horizontal.localRotation;
+    m_CameraTargetVerticalRotation = m_Vertical.localRotation;
   }
 
   private void Update()
@@ -26,8 +23,8 @@ public class MouseLook : MonoBehaviour
       return;
     }
 
-    var yr = Input.GetAxis("Mouse X") * m_Sensitivity.x;
-    var xr = Input.GetAxis("Mouse Y") * m_Sensitivity.y;
+    var yr = Input.GetAxis("Mouse X") * m_Sensitivity.x * 2.0f;
+    var xr = Input.GetAxis("Mouse Y") * m_Sensitivity.y * 2.0f;
 
     m_CameraTargetHorizontalRotation *= Quaternion.Euler(0.0f, yr, 0.0f);
 
@@ -35,11 +32,11 @@ public class MouseLook : MonoBehaviour
     m_CameraTargetVerticalRotation = ClampRotationAroundX(m_CameraTargetVerticalRotation);
 
     if (m_Smoothing) {
-      m_View.localRotation = Quaternion.Slerp(m_View.localRotation, m_CameraTargetHorizontalRotation, m_SmoothTime * Time.deltaTime);
-      m_Camera.localRotation = Quaternion.Slerp(m_Camera.localRotation, m_CameraTargetVerticalRotation, m_SmoothTime * Time.deltaTime);
+      m_Horizontal.localRotation = Quaternion.Slerp(m_Horizontal.localRotation, m_CameraTargetHorizontalRotation, m_SmoothTime * Time.deltaTime);
+      m_Vertical.localRotation = Quaternion.Slerp(m_Vertical.localRotation, m_CameraTargetVerticalRotation, m_SmoothTime * Time.deltaTime);
     } else {
-      m_View.localRotation = m_CameraTargetHorizontalRotation;
-      m_Camera.localRotation = m_CameraTargetVerticalRotation;
+      m_Horizontal.localRotation = m_CameraTargetHorizontalRotation;
+      m_Vertical.localRotation = m_CameraTargetVerticalRotation;
     }
 
 #if UNITY_EDITOR

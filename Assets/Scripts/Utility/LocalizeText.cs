@@ -1,17 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Text))]
+[RequireComponent(typeof (Text))]
 public class LocalizeText : MonoBehaviour
 {
-  [SerializeField]
-  private string m_Key;
-  [SerializeField]
-  private bool m_UpperCase;
-  [SerializeField]
-  private string m_Before;
-  [SerializeField]
-  private string m_After;
+  [SerializeField] private string m_After;
+  [SerializeField] private string m_Before;
+  [SerializeField] private string m_Key;
+  [SerializeField] private bool m_UpperCase;
 
   private void Start()
   {

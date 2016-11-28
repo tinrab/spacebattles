@@ -6,17 +6,11 @@ public class MenuTabsController : MonoBehaviour
 {
   private static readonly Vector2 s_FarLeft = new Vector2(-1280.0f, 0.0f);
   private static readonly Vector2 s_FarRight = new Vector2(1280.0f, 0.0f);
-
-  [SerializeField]
-  private Toggle[] m_Tabs;
-  [SerializeField]
-  private RectTransform[] m_TabContents;
-  [SerializeField]
-  private CanvasGroup[] m_CanvasGroups;
-  [SerializeField]
-  private float m_SwitchDuration;
-
+  [SerializeField] private CanvasGroup[] m_CanvasGroups;
   private int m_CurrentTab;
+  [SerializeField] private float m_SwitchDuration;
+  [SerializeField] private RectTransform[] m_TabContents;
+  [SerializeField] private Toggle[] m_Tabs;
 
   private void Start()
   {
@@ -58,13 +52,14 @@ public class MenuTabsController : MonoBehaviour
     tb.gameObject.SetActive(true);
     gb.interactable = false;
 
-    TweenFactory.Tween("MoveA", Vector2.zero, targetPositionA, m_SwitchDuration, TweenScaleFunctions.CubicEaseInOut, t =>
-    {
-      ta.anchoredPosition = t.CurrentValue;
-    }, t =>
-    {
-      ta.gameObject.SetActive(false);
-    });
+    TweenFactory.Tween("MoveA", Vector2.zero, targetPositionA, m_SwitchDuration, TweenScaleFunctions.CubicEaseInOut,
+      t =>
+      {
+        ta.anchoredPosition = t.CurrentValue;
+      }, t =>
+      {
+        ta.gameObject.SetActive(false);
+      });
     TweenFactory.Tween("FadeA", 1.0f, 0.0f, m_SwitchDuration, TweenScaleFunctions.CubicEaseInOut, t =>
     {
       ga.alpha = t.CurrentValue;

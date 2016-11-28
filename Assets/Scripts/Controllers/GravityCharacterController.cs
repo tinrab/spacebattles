@@ -1,48 +1,48 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(CapsuleCollider))]
+[RequireComponent(typeof (Rigidbody))]
+[RequireComponent(typeof (CapsuleCollider))]
 public class GravityCharacterController : MonoBehaviour
 {
-  private static readonly float s_GroundCheckDistance = 0.05f; // distance for checking if the controller is grounded
-  private static readonly float s_StickToGroundHelperDistance = 0.6f; // stops the character
-  private static readonly float s_SlowDownRate = 40.0f; // rate at which the controller comes to a stop when there is no input
-  private static readonly float s_ShellOffset = 0.0f; //reduce the radius by that ratio to avoid getting stuck in wall (a value of 0.1f is nice)
+  // distance for checking if the controller is grounded
+  private static readonly float s_GroundCheckDistance = 0.05f;
+  // stops the character
+  private static readonly float s_StickToGroundHelperDistance = 0.6f;
+  // rate at which the controller comes to a stop when there is no input
+  private static readonly float s_SlowDownRate = 40.0f;
+  //reduce the radius by that ratio to avoid getting stuck in wall (a value of 0.1f is nice)
+  private static readonly float s_ShellOffset = 0.0f;
   private static float s_RotationSpeed = 5.0f;
   private CapsuleCollider m_CapsuleCollider;
   private float m_CurrentTargetSpeed;
+  [SerializeField] private float m_Drag;
   private Vector3 m_GroundContactNormal;
   private Vector2 m_InputDirection;
   private bool m_Jump, m_Jumping;
+  [SerializeField] private float m_JumpPower;
   private bool m_PreviouslyGrounded;
   private Rigidbody m_RigidBody;
 
   public AnimationCurve m_SlopeCurveModifier = new AnimationCurve(new Keyframe(-90.0f, 1.0f), new Keyframe(0.0f, 1.0f),
     new Keyframe(90.0f, 0.0f));
+
+  [Header("Properties")] [SerializeField] private float m_Speed;
   private Quaternion m_TargetRotation;
-  [SerializeField]
-  private Transform m_View;
-  [SerializeField]
-  private float m_Drag;
-
-  [Header("Properties")]
-  [SerializeField]
-  private float m_Speed;
-  [SerializeField]
-  private float m_JumpPower;
-
+  [SerializeField] private Transform m_View;
   public bool grounded { get; private set; }
 
   public bool isRunning
   {
-    get {
+    get
+    {
       return false;
     }
   }
 
   public Vector3 velocity
   {
-    get {
+    get
+    {
       return m_RigidBody.velocity;
     }
   }
@@ -127,8 +127,8 @@ public class GravityCharacterController : MonoBehaviour
     RaycastHit hitInfo;
     if (Physics.SphereCast(transform.position, m_CapsuleCollider.radius * (1.0f - s_ShellOffset),
       Physics.gravity.normalized, out hitInfo,
-      m_CapsuleCollider.height / 2f - m_CapsuleCollider.radius +
-      s_StickToGroundHelperDistance, ~0, QueryTriggerInteraction.Ignore)) {
+      m_CapsuleCollider.height / 2f - m_CapsuleCollider.radius + s_StickToGroundHelperDistance, ~0,
+      QueryTriggerInteraction.Ignore)) {
       if (Mathf.Abs(Vector3.Angle(hitInfo.normal, Vector3.up)) < 85f) {
         m_RigidBody.velocity = Vector3.ProjectOnPlane(m_RigidBody.velocity, hitInfo.normal);
       }

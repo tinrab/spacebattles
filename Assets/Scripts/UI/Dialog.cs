@@ -1,17 +1,26 @@
-﻿using UnityEngine;
+﻿using DigitalRuby.Tween;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class Dialog : Singleton<Dialog>
 {
-  [SerializeField]
-  private GameObject m_Body;
-  [SerializeField]
-  private Text m_Text;
-  [SerializeField]
-  private Button[] m_Buttons;
-
+  [SerializeField] private Button[] m_Buttons;
   private UnityAction<int> m_OnClick;
+  [SerializeField] private Image m_Overlay;
+  private Color m_OverlayColor;
+  [SerializeField] private Text m_Text;
+  [SerializeField] private CanvasGroup m_Widget;
+
+  private void Awake()
+  {
+    m_OverlayColor = new Color(0.0f, 0.0f, 0.0f, 0.75f);
+    m_Overlay.raycastTarget = false;
+    m_Overlay.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+    m_Widget.alpha = 0.0f;
+    m_Widget.interactable = false;
+    m_Widget.blocksRaycasts = false;
+  }
 
   public void Show(string text, string[] buttons, UnityAction<int> onClick)
   {
@@ -29,13 +38,37 @@ public class Dialog : Singleton<Dialog>
       }
     }
 
-    m_Body.SetActive(true);
+    m_Overlay.raycastTarget = true;
+    TweenFactory.Tween("ShowDialog", 0.0f, 1.0f, 0.2f, TweenScaleFunctions.CubicEaseInOut, t =>
+    {
+      var x = t.CurrentValue;
+      m_OverlayColor.a = x * 0.75f;
+      m_Overlay.color = m_OverlayColor;
+      m_Widget.alpha = x;
+      m_Widget.transform.localScale = new Vector3(1.0f, x, 1.0f);
+    }, t =>
+    {
+      m_Widget.interactable = true;
+      m_Widget.blocksRaycasts = true;
+    });
   }
 
   public void OnButtonClick(int button)
   {
     m_OnClick.Invoke(button);
-    m_Body.SetActive(false);
+    m_Widget.interactable = false;
+    m_Widget.blocksRaycasts = false;
+    TweenFactory.Tween("HideDialog", 1.0f, 0.0f, 0.2f, TweenScaleFunctions.CubicEaseInOut, t =>
+    {
+      var x = t.CurrentValue;
+      m_OverlayColor.a = x * 0.75f;
+      m_Overlay.color = m_OverlayColor;
+      m_Widget.alpha = x;
+      m_Widget.transform.localScale = new Vector3(1.0f, x, 1.0f);
+    }, t =>
+    {
+      m_Overlay.raycastTarget = false;
+    });
     m_OnClick = null;
   }
 }

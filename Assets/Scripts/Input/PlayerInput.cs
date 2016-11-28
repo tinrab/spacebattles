@@ -1,23 +1,27 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(GravityCharacterController))]
+[RequireComponent(typeof (GravityCharacterController))]
 public class PlayerInput : MonoBehaviour
 {
   private GravityCharacterController m_GravityCharacterController;
-  [SerializeField]
-  private Transform m_View;
-
+  private WeaponController m_WeaponController;
   private Vector2 m_InputDirection;
+  [SerializeField] private Transform m_View;
 
-  private void Awake()
+  private void Start()
   {
     m_GravityCharacterController = GetComponent<GravityCharacterController>();
+    m_WeaponController = WeaponController.instance;
   }
 
   private void Update()
   {
     if (Input.GetButtonDown("Jump")) {
       m_GravityCharacterController.Jump();
+    }
+
+    if (Input.GetButtonDown("Fire")) {
+      m_WeaponController.Fire();
     }
   }
 

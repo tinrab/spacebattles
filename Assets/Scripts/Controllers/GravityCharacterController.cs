@@ -2,6 +2,7 @@
 
 [RequireComponent(typeof (Rigidbody))]
 [RequireComponent(typeof (CapsuleCollider))]
+[RequireComponent(typeof (Gravity))]
 public class GravityCharacterController : MonoBehaviour
 {
   // distance for checking if the controller is grounded
@@ -21,23 +22,13 @@ public class GravityCharacterController : MonoBehaviour
   private bool m_Jump, m_Jumping;
   [SerializeField] private float m_JumpPower;
   private bool m_PreviouslyGrounded;
+  private Gravity m_Gravity;
   private Rigidbody m_RigidBody;
-
-  public AnimationCurve m_SlopeCurveModifier = new AnimationCurve(new Keyframe(-90.0f, 1.0f), new Keyframe(0.0f, 1.0f),
-    new Keyframe(90.0f, 0.0f));
-
+  public AnimationCurve m_SlopeCurveModifier = new AnimationCurve(new Keyframe(-90.0f, 1.0f), new Keyframe(0.0f, 1.0f), new Keyframe(90.0f, 0.0f));
   [Header("Properties")] [SerializeField] private float m_Speed;
   private Quaternion m_TargetRotation;
   [SerializeField] private Transform m_View;
   public bool grounded { get; private set; }
-
-  public bool isRunning
-  {
-    get
-    {
-      return false;
-    }
-  }
 
   public Vector3 velocity
   {
@@ -51,6 +42,7 @@ public class GravityCharacterController : MonoBehaviour
   {
     m_RigidBody = GetComponent<Rigidbody>();
     m_CapsuleCollider = GetComponent<CapsuleCollider>();
+    m_Gravity = GetComponent<Gravity>();
   }
 
   private void Start()
@@ -78,7 +70,7 @@ public class GravityCharacterController : MonoBehaviour
 
     if (Mathf.Abs(m_InputDirection.x) > float.Epsilon || Mathf.Abs(m_InputDirection.y) > float.Epsilon) {
       var desiredMove = m_View.transform.forward * m_InputDirection.y + m_View.transform.right * m_InputDirection.x;
-      desiredMove = Vector3.ProjectOnPlane(desiredMove, Physics.gravity.normalized).normalized;
+      desiredMove = Vector3.ProjectOnPlane(desiredMove, m_Gravity.direction).normalized;
 
       desiredMove.x = desiredMove.x * m_CurrentTargetSpeed;
       desiredMove.z = desiredMove.z * m_CurrentTargetSpeed;
@@ -94,13 +86,11 @@ public class GravityCharacterController : MonoBehaviour
 
       if (m_Jump) {
         m_RigidBody.drag = 0.0f;
-        //m_RigidBody.velocity = new Vector3(m_RigidBody.velocity.x, 0.0f, m_RigidBody.velocity.z);
-        m_RigidBody.AddForce(-Physics.gravity.normalized * m_JumpPower * 50.0f, ForceMode.Impulse);
+        m_RigidBody.AddForce(-m_Gravity.direction * m_JumpPower * 50.0f, ForceMode.Impulse);
         m_Jumping = true;
       }
 
-      if (!m_Jumping && Mathf.Abs(m_InputDirection.x) < float.Epsilon && Mathf.Abs(m_InputDirection.y) < float.Epsilon &&
-          m_RigidBody.velocity.magnitude < 1.0f) {
+      if (!m_Jumping && Mathf.Abs(m_InputDirection.x) < float.Epsilon && Mathf.Abs(m_InputDirection.y) < float.Epsilon && m_RigidBody.velocity.magnitude < 1.0f) {
         m_RigidBody.Sleep();
       }
     } else {
@@ -117,7 +107,7 @@ public class GravityCharacterController : MonoBehaviour
 
   private float SlopeMultiplier()
   {
-    var angle = Vector3.Angle(m_GroundContactNormal, -Physics.gravity.normalized);
+    var angle = Vector3.Angle(m_GroundContactNormal, -m_Gravity.direction);
 
     return m_SlopeCurveModifier.Evaluate(angle);
   }
@@ -125,10 +115,7 @@ public class GravityCharacterController : MonoBehaviour
   private void StickToGroundHelper()
   {
     RaycastHit hitInfo;
-    if (Physics.SphereCast(transform.position, m_CapsuleCollider.radius * (1.0f - s_ShellOffset),
-      Physics.gravity.normalized, out hitInfo,
-      m_CapsuleCollider.height / 2f - m_CapsuleCollider.radius + s_StickToGroundHelperDistance, ~0,
-      QueryTriggerInteraction.Ignore)) {
+    if (Physics.SphereCast(transform.position, m_CapsuleCollider.radius * (1.0f - s_ShellOffset), m_Gravity.direction, out hitInfo, m_CapsuleCollider.height / 2f - m_CapsuleCollider.radius + s_StickToGroundHelperDistance, ~0, QueryTriggerInteraction.Ignore)) {
       if (Mathf.Abs(Vector3.Angle(hitInfo.normal, Vector3.up)) < 85f) {
         m_RigidBody.velocity = Vector3.ProjectOnPlane(m_RigidBody.velocity, hitInfo.normal);
       }
@@ -139,10 +126,7 @@ public class GravityCharacterController : MonoBehaviour
   {
     m_PreviouslyGrounded = grounded;
     RaycastHit hitInfo;
-    if (Physics.SphereCast(transform.position, m_CapsuleCollider.radius * (1.0f - s_ShellOffset),
-      Physics.gravity.normalized, out hitInfo,
-      m_CapsuleCollider.height / 2.0f - m_CapsuleCollider.radius + s_GroundCheckDistance, ~0,
-      QueryTriggerInteraction.Ignore)) {
+    if (Physics.SphereCast(transform.position, m_CapsuleCollider.radius * (1.0f - s_ShellOffset), m_Gravity.direction, out hitInfo, m_CapsuleCollider.height / 2.0f - m_CapsuleCollider.radius + s_GroundCheckDistance, ~0, QueryTriggerInteraction.Ignore)) {
       grounded = true;
       m_GroundContactNormal = hitInfo.normal;
     } else {

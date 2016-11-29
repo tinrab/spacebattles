@@ -2,42 +2,59 @@
 
 public class MouseLook : MonoBehaviour
 {
-  private Quaternion m_CameraTargetHorizontalRotation;
-  private Quaternion m_CameraTargetVerticalRotation;
+  [SerializeField] private float rotationSpeed;
+  [SerializeField] private float dampingTime;
+  private Vector3 targetAngles;
+  private Vector3 followAngles;
+  private Vector3 followVelocity;
+  private Quaternion originalRotation;
   private CursorLockMode m_LockMode;
-  [SerializeField] private Vector2 m_Sensitivity;
-  private bool m_Smoothing;
-  private float m_SmoothTime;
-  [SerializeField] private Transform m_Vertical;
-  [SerializeField] private Transform m_Horizontal;
 
   private void Start()
   {
-    m_CameraTargetHorizontalRotation = m_Horizontal.localRotation;
-    m_CameraTargetVerticalRotation = m_Vertical.localRotation;
+    originalRotation = transform.localRotation;
   }
 
   private void Update()
   {
-    if (!new Rect(1, 1, Screen.width - 2, Screen.height - 2).Contains(Input.mousePosition)) {
-      return;
+    // we make initial calculations from the original local rotation
+    transform.localRotation = originalRotation;
+
+    // read input from mouse or mobile controls
+    var inputH = Input.GetAxis("Mouse X");
+    var inputV = Input.GetAxis("Mouse Y");
+
+    // wrap values to avoid springing quickly the wrong way from positive to negative
+    if (targetAngles.y > 180) {
+      targetAngles.y -= 360;
+      followAngles.y -= 360;
+    }
+    if (targetAngles.x > 180) {
+      targetAngles.x -= 360;
+      followAngles.x -= 360;
+    }
+    if (targetAngles.y < -180) {
+      targetAngles.y += 360;
+      followAngles.y += 360;
+    }
+    if (targetAngles.x < -180) {
+      targetAngles.x += 360;
+      followAngles.x += 360;
     }
 
-    var yr = Input.GetAxis("Mouse X") * m_Sensitivity.x * 2.0f;
-    var xr = Input.GetAxis("Mouse Y") * m_Sensitivity.y * 2.0f;
+    // with mouse input, we have direct control with no springback required.
+    targetAngles.y += inputH * rotationSpeed;
+    targetAngles.x += inputV * rotationSpeed;
 
-    m_CameraTargetHorizontalRotation *= Quaternion.Euler(0.0f, yr, 0.0f);
+    // clamp values to allowed range
+    //targetAngles.y = Mathf.Clamp(targetAngles.y, -rotationRange.y * 0.5f, rotationRange.y * 0.5f);
+    targetAngles.x = Mathf.Clamp(targetAngles.x, -90.0f, 90.0f);
 
-    m_CameraTargetVerticalRotation *= Quaternion.Euler(-xr, 0.0f, 0.0f);
-    m_CameraTargetVerticalRotation = ClampRotationAroundX(m_CameraTargetVerticalRotation);
+    // smoothly interpolate current values to target angles
+    followAngles = Vector3.SmoothDamp(followAngles, targetAngles, ref followVelocity, dampingTime);
 
-    if (m_Smoothing) {
-      m_Horizontal.localRotation = Quaternion.Slerp(m_Horizontal.localRotation, m_CameraTargetHorizontalRotation, m_SmoothTime * Time.deltaTime);
-      m_Vertical.localRotation = Quaternion.Slerp(m_Vertical.localRotation, m_CameraTargetVerticalRotation, m_SmoothTime * Time.deltaTime);
-    } else {
-      m_Horizontal.localRotation = m_CameraTargetHorizontalRotation;
-      m_Vertical.localRotation = m_CameraTargetVerticalRotation;
-    }
+    // update the actual gameobject's rotation
+    transform.localRotation = originalRotation * Quaternion.Euler(-followAngles.x, followAngles.y, 0);
 
 #if UNITY_EDITOR
     if (Input.GetKeyDown(KeyCode.Escape)) {
@@ -47,21 +64,5 @@ public class MouseLook : MonoBehaviour
     Cursor.lockState = m_LockMode;
     Cursor.visible = CursorLockMode.Locked != m_LockMode;
 #endif
-  }
-
-  private Quaternion ClampRotationAroundX(Quaternion q)
-  {
-    q.x /= q.w;
-    q.y /= q.w;
-    q.z /= q.w;
-    q.w = 1.0f;
-
-    var angleX = 2.0f * Mathf.Rad2Deg * Mathf.Atan(q.x);
-
-    angleX = Mathf.Clamp(angleX, -90.0f, 90.0f);
-
-    q.x = Mathf.Tan(0.5f * Mathf.Deg2Rad * angleX);
-
-    return q;
   }
 }
